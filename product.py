@@ -27,6 +27,28 @@ class Template:
             res['name'] = name
         return res
 
+    @fields.depends('taxes_category', 'category', 'list_price', 'cost_price',
+        'taxes')
+    def on_change_category(self):
+        try:
+            changes = super(Template, self).on_change_category()
+        except AttributeError:
+            changes = {}
+
+        if self.category:
+            changes['account_category'] = True
+            changes['taxes_category'] = True
+
+        if self.taxes_category:
+            changes['list_price_with_tax'] = None
+            changes['cost_price_with_tax'] = None
+            if self.category:
+                changes['list_price_with_tax'] = self.get_list_price_with_tax()
+                changes['cost_price_with_tax'] = self.get_cost_price_with_tax()
+                changes['account_category'] = True
+                changes['taxes_category'] = True
+        return changes
+
 class Product:
     __name__ = 'product.product'
 
