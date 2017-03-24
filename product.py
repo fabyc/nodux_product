@@ -24,7 +24,15 @@ class Template:
     @staticmethod
     def default_products():
         return []
-        
+
+    @staticmethod
+    def default_salable():
+        return True
+
+    @staticmethod
+    def default_purchasable():
+        return True
+
     @fields.depends('name')
     def on_change_name(self):
         res = {}
