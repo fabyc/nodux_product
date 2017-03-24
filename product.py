@@ -12,11 +12,19 @@ __metaclass__ = PoolMeta
 class Template:
     __name__ = 'product.template'
 
+    code1 = fields.Char('Code')
+
+    code2 = fields.Char('Code')
+
     @classmethod
     def __setup__(cls):
         super(Template, cls).__setup__()
         cls.name.size = 100
 
+    @staticmethod
+    def default_products():
+        return []
+        
     @fields.depends('name')
     def on_change_name(self):
         res = {}
@@ -25,6 +33,36 @@ class Template:
             name = self.name.strip()
             name = name.replace("\n","")
             res['name'] = name
+        return res
+
+    @classmethod
+    def search_rec_name(cls, name, clause):
+        products = cls.search([
+                ('code1',) + tuple(clause[1:]),
+                ], limit=1)
+        if products:
+            return [('code1',) + tuple(clause[1:])]
+
+        products2 = cls.search([
+                ('code2',) + tuple(clause[1:]),
+                ], limit=1)
+        if products2:
+            return [('code2',) + tuple(clause[1:])]
+
+        return [('name',) + tuple(clause[1:])]
+
+    @fields.depends('products')
+    def on_change_products(self):
+        res = {}
+        cont = 0
+        for product in self.products:
+            if cont == 0:
+                if product.code:
+                    res['code1'] = product.code
+            if cont == 1:
+                if product.code:
+                    res['code2'] = product.code
+            cont += 1
         return res
 
     @fields.depends('taxes_category', 'category', 'list_price', 'cost_price',
