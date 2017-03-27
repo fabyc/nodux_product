@@ -103,6 +103,11 @@ class Product:
         super(Product, cls).__setup__()
         cls.code.size = 50
 
+        cls._sql_constraints += [
+            ('code', 'UNIQUE(code)',
+                'CODE Product already exists'),
+        ]
+
     @fields.depends('code')
     def on_change_code(self):
         res = {}
