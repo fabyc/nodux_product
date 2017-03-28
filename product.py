@@ -45,19 +45,11 @@ class Template:
 
     @classmethod
     def search_rec_name(cls, name, clause):
-        products = cls.search([
-                ('code1',) + tuple(clause[1:]),
-                ], limit=1)
-        if products:
-            return [('code1',) + tuple(clause[1:])]
-
-        products2 = cls.search([
-                ('code2',) + tuple(clause[1:]),
-                ], limit=1)
-        if products2:
-            return [('code2',) + tuple(clause[1:])]
-
-        return [('name',) + tuple(clause[1:])]
+        return ['OR',
+            ('code1',) + tuple(clause[1:]),
+            ('code2',) + tuple(clause[1:]),
+            ('name',) + tuple(clause[1:]),
+            ]
 
     @fields.depends('products')
     def on_change_products(self):
@@ -102,11 +94,11 @@ class Product:
     def __setup__(cls):
         super(Product, cls).__setup__()
         cls.code.size = 50
-
+        """
         cls._sql_constraints += [
             ('code', 'UNIQUE(code)',
                 'CODE Product already exists'),
-        ]
+        ]"""
 
     @fields.depends('code')
     def on_change_code(self):
